@@ -15,4 +15,4 @@ gem install mvg-live
 
 Make sure it is running correctly by running ``mvg hauptbahnhof``` in the terminal. If you got a timetable, you're all set.
 
-## 2 Comming soon
+## 2 Coming soon
