@@ -12,6 +12,10 @@ Follow his `README.md` to install his rubygem. Essentially, it requires running:
 ```bash
 gem install mvg-live
 ```
+If you get an error that says ``'mkmf.rb can't find header files for ruby'`` try doing what it says on this [stackoverflow page](https://stackoverflow.com/questions/20559255/error-while-installing-json-gem-mkmf-rb-cant-find-header-files-for-ruby), i.e. run this command in the bash shell:
+```bash
+sudo apt-get install ruby`ruby -e 'puts RUBY_VERSION[/\d+\.\d+/]'`-dev
+```
 
 Make sure it is running correctly by running ``mvg hauptbahnhof``` in the terminal. If you got a timetable, you're all set.
 
