@@ -19,11 +19,12 @@ sudo apt-get install ruby`ruby -e 'puts RUBY_VERSION[/\d+\.\d+/]'`-dev
 
 Make sure it is running correctly by running `mvg hauptbahnhof`` in the terminal. If you got a timetable, you're all set.
 
-## Setting up a 4 digit 8 segment (4d8s) LED display
+## Setting up a 4 digit 7 segment (4d7s) LED display
 An explanation of how to use 4d8s displays with can be found on [raspi.tv](http://raspi.tv/2015/how-to-drive-a-7-segment-display-directly-on-raspberry-pi-in-python). They did a nice job of explaining the pinout:
 ![Alt text](/images/7seg-pinout-annotated_700.jpg?raw=true "4d8s pinout from raspi.tv")
 
-I modified their wiring because I thought it made more sense to physically separate the wires that controll the digit selection from the wires that light up a specific segment.
+I modified their wiring because I thought it made more sense to physically separate the wires that controll the digit selection from the wires that light up a specific segment. The resulting wiring is:
+![Alt text](/images/4d7s_wiring.jpg?raw=true "4d7s display wiring")
 
 ## Setting up a 8 digit 8 segment (8d8s) LED display through SPI
 coming soon...
