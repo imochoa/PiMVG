@@ -24,7 +24,7 @@ An explanation of how to use 4d8s displays with can be found on [raspi.tv](http:
 ![Alt text](/images/7seg-pinout-annotated_700.jpg?raw=true "4d8s pinout from raspi.tv")
 
 I modified their wiring because I thought it made more sense to physically separate the wires that controll the digit selection from the wires that light up a specific segment. The resulting wiring is:
-![Alt text](/images/4d7s_wiring.jpg?raw=true "4d7s display wiring")
+![Alt text](/images/4d7s_wiring.bmp?raw=true "4d7s display wiring")
 
 ## Setting up a 8 digit 8 segment (8d8s) LED display through SPI
 coming soon...
