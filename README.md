@@ -26,10 +26,15 @@ An explanation of how to use 4d8s displays with can be found on [raspi.tv](http:
 I modified their wiring because I thought it made more sense to physically separate the wires that controll the digit selection from the wires that light up a specific segment. The resulting wiring is:
 ![Alt text](/images/4d7s_wiring.bmp?raw=true "4d7s display wiring")
 
-## Setting up a 8 digit 8 segment (8d8s) LED display through SPI
+## Setting up a 8 digit 7 segment (8d7s) LED display through SPI
 coming soon...
 
 # Comissioning
-## Running it on a 4d8s display
+## Running it on a 4d7s display
 
-## Running it on a 4d8s display
+Here is an example of it running on a 4d7s display:
+[![Alt text](https://img.youtube.com/vi/vvEPnLYukYQ/4.jpg)](https://youtu.be/vvEPnLYukYQ)
+
+
+
+## Running it on a 8d7s display
