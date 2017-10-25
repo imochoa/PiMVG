@@ -5,11 +5,14 @@ import subprocess
 import threading
 import time
 
+from collections import namedtuple
+
 
 def print_station(station):
     print(subprocess.check_output(['mvg', station]))
 
-valid_lines = ['u','s','tram','bus']
+
+valid_transports = [u'u', u's', u'tram', u'bus']
 
 
 def get_station_dict(station):
@@ -62,10 +65,12 @@ def transport_type(name):
     return ''
 
 
-def filter_timetable(timetable, line=[], destination=[], max_time=None, min_time=None):
-    """
+MVGPars = namedtuple('MVGpars', 'station line destination max_time min_time')
 
-    :param timetable: List of dictionaries with the times
+
+def mvg_pars_factory(station, line=[], destination=[], max_time=None, min_time=None):
+    """
+        :param timetable: List of dictionaries with the times
     :param line: type of public transport. Array of:["u", "bus", "tram", "s"]
                     'u':    Ubahn
                     's':    Sbahn
@@ -76,48 +81,117 @@ def filter_timetable(timetable, line=[], destination=[], max_time=None, min_time
     :param min_time: Minimum time of departure to take into account
     :return:
     """
+    # Make sure transports is a list
+    line = line if isinstance(line, list) else [line]
+    # In Unicode and all lowercase
+    line = [unicode(l).lower() for l in line]
+    # Only keep valid transportss
+    line = [l for l in line if l in valid_transports]
+
+    # Make sure destination is a list
+    destination = destination if isinstance(destination, list) else [destination]
+    # In Unicode and all uppercase
+    destination = [unicode(d).upper() for d in destination if not d]
+
+    return MVGPars(station=station,
+                   line=line,
+                   destination=destination,
+                   max_time=max_time,
+                   min_time=min_time)
+
+
+def filter_timetable(timetable, mvg_pars):
+    # Make sure the input is the timetable and not the entire json result
+    timetable = timetable.get('result_sorted', timetable)
 
     # Only get results of a certain type
-    if line:
-        timetable = [i for i in timetable if transport_type(i.get(u'line', '')) in line]
+    if mvg_pars.line:
+
+        timetable = [
+            i for i in timetable if
+            i.get(u'line', '').lower() in mvg_pars.line  # Direct match with the line name
+            or transport_type(i.get(u'line', '')) in list(set(mvg_pars.line).intersection(set(valid_transports)))]
+        # Second line matches the transport type (ubahn, sbahn...)
 
     # Only get results that go to one of the destinations
-    if destination:
-        destination = destination if isinstance(destination, list) else [destination]
-        destination = [d.upper() for d in destination]
-        timetable = [i for i in timetable if i.get(u'destination', '').upper() in destination]
+    if mvg_pars.destination:
+        timetable = [i for i in timetable if i.get(u'destination', '').upper() in mvg_pars.destination]
 
     # Only get results that are in a certain timespan
-    if max_time:
-        timetable = [i for i in timetable if i.get(u'minutes', 0) <= max_time]
+    if mvg_pars.max_time:
+        timetable = [i for i in timetable if i.get(u'minutes', 0) <= mvg_pars.max_time]
 
-    if min_time:
-        timetable = [i for i in timetable if i.get(u'minutes', 100) >= min_time]
+    if mvg_pars.min_time:
+        timetable = [i for i in timetable if i.get(u'minutes', 60) >= mvg_pars.min_time]
 
     return timetable
 
 
-class PiMVG(object):
-    def __init__(self, station, line=[], destination=[], max_time=None, min_time=None, update_interval=30):
+# def filter_timetable_old(timetable, transports=[], destination=[], max_time=None, min_time=None):
+#     """
+#
+#     :param timetable: List of dictionaries with the times
+#     :param transports: type of public transport. Array of:["u", "bus", "tram", "s"]
+#                     'u':    Ubahn
+#                     's':    Sbahn
+#                     'tram': Tram
+#                     'bus':  Bus
+#     :param destination: Destinations that will be used for filtering
+#     :param max_time: Maximum time of departure to take into account
+#     :param min_time: Minimum time of departure to take into account
+#     :return:
+#     """
+#
+#     # Only get results of a certain type
+#     if transports:
+#         timetable = [i for i in timetable if transport_type(i.get(u'transports', '')) in transports]
+#
+#     # Only get results that go to one of the destinations
+#     if destination:
+#         destination = destination if isinstance(destination, list) else [destination]
+#         destination = [d.upper() for d in destination]
+#         timetable = [i for i in timetable if i.get(u'destination', '').upper() in destination]
+#
+#     # Only get results that are in a certain timespan
+#     if max_time:
+#         timetable = [i for i in timetable if i.get(u'minutes', 0) <= max_time]
+#
+#     if min_time:
+#         timetable = [i for i in timetable if i.get(u'minutes', 100) >= min_time]
+#
+#     return timetable
+
+
+class MVGTracker(object):
+    def __init__(self, mvg_pars, update_interval=30):
         # Attributes
 
         # MVG Attributes
-        self.station = station.decode('utf-8')
-        self.line = [d.decode('utf-8') for d in line]
-        self.destination = [d.decode('utf-8') for d in destination]
-        self.max_time = max_time
-        self.min_time = min_time
+        self.mvg_pars = mvg_pars if isinstance(mvg_pars, list) else [mvg_pars]
+        self.mvg_results = None
+        self.mvg_filtered_results = None
 
         # Additional Attributes
         self.update_interval = update_interval
         self.last_update = None
-        self.station_dict = dict()
-        self.timetable = []
         self._track_flag = False
+
+    @staticmethod
+    def one_result(station, transports=[], destination=[], max_time=None, min_time=None, update_interval=30):
+        mvg_pars = mvg_pars_factory(
+                station, line=transports, destination=destination, max_time=max_time, min_time=min_time)
+        return MVGTracker(mvg_pars=mvg_pars, update_interval=update_interval)
+
+    @property
+    def display_string(self):
+        for fr in self.mvg_filtered_results:
+            r = [row['line'] + ' ' + row['destination'] + ' ' + unicode(row['minutes']) for row in fr]
+            print(r)
 
     def track(self):
         self._track_flag = True
-        threading.Timer(self.update_interval, self._periodic_fun).start()
+        self._periodic_fun()
+
 
     def stop_tracking(self):
         self._track_flag = False
@@ -125,36 +199,32 @@ class PiMVG(object):
     def _periodic_fun(self):
         # print("in the periodic function")
 
-        new_dict = get_station_dict(station=self.station)
+        self.mvg_results = [get_station_dict(station=mp.station) for mp in self.mvg_pars]
 
-        if new_dict:  # If new_dict is not None
-            self.station_dict = new_dict
-            self.last_update = time.time()
-            self.timetable = self._filter_timetable()
+        self.mvg_filtered_results = [
+            filter_timetable(timetable=t, mvg_pars=p) for t, p in zip(self.mvg_results, self.mvg_pars)]
 
-            # end = time.time()
-            # print(end - start)
-
-        for i in self.timetable:
-            print(i['line'] +' '+ i['destination'] + ' leaving in: ' + unicode(str(i['minutes'])) + ' mins')
+        print(self.mvg_filtered_results)
+        # for i in self.timetable:
+        #     print(i['transports'] + ' ' + i['destination'] + ' leaving in: ' + unicode(str(i['minutes'])) + ' mins')
 
         if self._track_flag:
             threading.Timer(self.update_interval, self._periodic_fun).start()
 
-    def _filter_timetable(self):
-        return filter_timetable(timetable=self.station_dict.get('result_sorted', []),
-                                line=self.line,
-                                destination=self.destination,
-                                max_time=self.max_time,
-                                min_time=self.min_time)
+            # def _filter_timetable(self):
+            #     return filter_timetable(timetable=self.station_dict.get('result_sorted', []),
+            #                             transports=self.transports,
+            #                             destination=self.destination,
+            #                             max_time=self.max_time,
+            #                             min_time=self.min_time)
 
 
 if __name__ == "__main__":
 
-    mvg_tracker = PiMVG(station='Olympiazentrum',
-                        line=['u'],
-                        destination=['Fürstenried West'],
-                        update_interval=1)
+    mvg_tracker = MVGTracker.one_result(station='Olympiazentrum',
+                                        transports=['u'],
+                                        destination=['Fürstenried West'],
+                                        update_interval=1)
     mvg_tracker.track()
 
     print('Explore d...')
