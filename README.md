@@ -31,10 +31,9 @@ coming soon...
 
 # Comissioning
 ## Running it on a 4d7s display
-
 Here is an example of it running on a 4d7s display:
-[![Alt text](https://img.youtube.com/vi/vvEPnLYukYQ/4.jpg)](https://youtu.be/vvEPnLYukYQ)
 
-
+[![Using a 4 digit 7 segment display to display the MVG departure times](https://i.ytimg.com/vi/vvEPnLYukYQ/hqdefault.jpg)](https://www.youtube.com/embed/vvEPnLYukYQ?autoplay=1 "Using a 4 digit 7 segment display to display the MVG departure times")
 
 ## Running it on a 8d7s display
+coming soon...
