@@ -3,7 +3,7 @@
 
 #######################################################
 # Starting the internet part
-from .core import MVGTracker, mvg_pars_factory
+from core import MVGTracker, mvg_pars_factory
 import RPi.GPIO as GPIO
 import time
 import os
@@ -54,15 +54,21 @@ class FourDigSevSeg(MVGTracker):
                 station, line=transports, destination=destination, max_time=max_time, min_time=min_time)
         return FourDigSevSeg(mvg_pars=mvg_pars, screen_timeout=screen_timeout, update_interval=update_interval)
 
+    @property
     def display_string(self):
         r = []
-        for fr in self.mvg_filtered_results:
-            r += [row['line'] + ' ' + unicode(row['minutes']) for row in fr]
 
-        return r
+	if not self.mvg_filtered_results:
+	    return '    '
+	else:
+	    fr = self.mvg_filtered_results[0]
+	    min = unicode(fr[0]['minutes'])
+		
+            return '{0:4}'.format(min)
 
     def display(self):
         OFF_time = time.time()+self.screen_timeout*60
+	self.track()
         try:
             while (time.time()<OFF_time):
                 # os.system('sudo shutdown -h now')
@@ -71,11 +77,13 @@ class FourDigSevSeg(MVGTracker):
 
                 for digit in range(4):
                     for loop in range(0, 7):
-                        GPIO.output(segments[loop], num[s[digit]][loop])
+			# print("s[dtig] is "+str(s))
+                        GPIO.output(segments[loop], num.get(s[digit],(0,0,0,0,0,0,0,0))[loop])
                     GPIO.output(digits[digit], 0)
                     time.sleep(0.001)
                     GPIO.output(digits[digit], 1)
         finally:
+	    self.stop_tracking()
             GPIO.cleanup()
 
 if __name__ == "__main__":
@@ -83,7 +91,7 @@ if __name__ == "__main__":
     pi_mvg = FourDigSevSeg.one_result(station='Olympiazentrum',
                                         transports=['u'],
                                         destination=['Fürstenried West'],
-                                        screen_timeout=1,
+                                        screen_timeout=3,
                                         update_interval=5)
 
     pi_mvg.display()
