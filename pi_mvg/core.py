@@ -219,16 +219,3 @@ class MVGTracker(object):
             #                             min_time=self.min_time)
 
 
-if __name__ == "__main__":
-
-    mvg_tracker = MVGTracker.one_result(station='Olympiazentrum',
-                                        transports=['u'],
-                                        destination=['Fürstenried West'],
-                                        update_interval=1)
-    mvg_tracker.track()
-
-    print('Explore d...')
-
-    mvg_tracker.stop_tracking()
-
-    print('Explore d...')
