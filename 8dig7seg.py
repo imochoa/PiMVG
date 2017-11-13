@@ -29,6 +29,17 @@ def show_message_vp(device, msg, delay=0.1):
         time.sleep(delay)
 
 
+def show_message_alt(seg, msg, delay=0.1):
+    # Does same as above but does string slicing itself
+    width = seg.device.width
+    padding = " " * width
+    msg = padding + msg + padding
+
+    for i in range(len(msg)):
+        seg.text = msg[i:i + width]
+        time.sleep(delay)
+
+
 class EightDigSevSeg(MVGTracker):
     def __init__(self, mvg_pars, port=0, device=0, cascaded=1, screen_timeout=None, update_interval=30):
 
@@ -88,9 +99,13 @@ class EightDigSevSeg(MVGTracker):
         try:
             while on_flag or (time.time() < OFF_time):
                 # Display the results!
-                show_message_vp(device=self.device,
-                                msg=self.display_string,
-                                delay=0.1)
+                # show_message_vp(device=self.device,
+                #                 msg=self.display_string,
+                #                 delay=0.1)
+
+                show_message_alt(seg=self.seg,
+                                 msg=self.display_string,
+                                 delay=0.1)
                 time.sleep(5)  # Check new display string every 5 seconds
 
         finally:
