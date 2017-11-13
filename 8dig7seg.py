@@ -19,7 +19,7 @@ def show_message_vp(device, msg, delay=0.1):
     # Implemented with virtual viewport
     width = device.width
     padding = " " * width
-    msg = padding + msg + padding
+    msg = unicode(padding + msg + padding).encode('utf-8')
     n = len(msg)
 
     virtual = viewport(device, width=n, height=8)
@@ -95,7 +95,6 @@ class EightDigSevSeg(MVGTracker):
 
         finally:
             self.stop_tracking()
-            GPIO.cleanup()
 
 
 if __name__ == "__main__":

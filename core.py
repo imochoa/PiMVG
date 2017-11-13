@@ -203,7 +203,7 @@ class MVGTracker(object):
         """
 
         if not self.mvg_filtered_results:
-            name = '----'
+            name = '--'
             dep_time = '--'
         else:
             name = self.mvg_filtered_results[0].get('line', '--') + ' ' + \
@@ -228,10 +228,9 @@ class MVGTracker(object):
             filter_timetable(timetable=t, mvg_pars=p) for t, p in zip(self.mvg_results, self.mvg_pars)].pop()
 
         print(self.mvg_filtered_results)
-	print('\n')
+        print('\n')
         # for i in self.timetable:
         #     print(i['transports'] + ' ' + i['destination'] + ' leaving in: ' + unicode(str(i['minutes'])) + ' mins')
-
         if self._track_flag:
             threading.Timer(self.update_interval, self._periodic_fun).start()
 
