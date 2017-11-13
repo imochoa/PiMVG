@@ -4,15 +4,17 @@
 import argparse
 import time
 import core
+four_dig = __import__('4dig7seg')
+eight_dig = __import__('8dig7seg')
 
 # from pi_mvg.core import PiMVG, valid_lines
 
 parser = argparse.ArgumentParser(description='MVG inputs')
 parser.add_argument(
         '--display_digits',
-        help='Number of digits suported by the display. 0 = Print to console, 4 = 4d7s display, anything else (DEFAULT) = combination of 8d7s displays',
+        help='Number of digits suported by the display. 0 (DEFAULT) = Print to console, 4 = 4d7s display, anything else  = combination of 8d7s displays',
         required=False,
-        default=8)
+        default=0)
 parser.add_argument(
         '--station',
         help='Station to check',
@@ -104,7 +106,7 @@ if __name__ == "__main__":
                                      min_time=min_time)
 
     # Which output to use?
-    if display_digits == 0:
+    if display_digits <= 0:
         # Use the Console
         mvg_tracker = core.MVGTracker(
                 mvg_pars=mvg_pars,
@@ -121,7 +123,17 @@ if __name__ == "__main__":
 
     elif display_digits == 4:
         # Use the 4d7s display
-        pass
+        mvg_tracker = four_dig.FourDigSevSeg(
+                mvg_pars=mvg_pars,
+                screen_timeout=screen_timeout,
+                update_interval=update_interval)
+
+        mvg_tracker.track()  # Already includes the timeout
     else:
         # Use the 8d7s display
-        pass
+        mvg_tracker = eight_dig.FourDigSevSeg(
+                mvg_pars=mvg_pars,
+                screen_timeout=screen_timeout,
+                update_interval=update_interval)
+
+        mvg_tracker.track()  # Already includes the timeout
