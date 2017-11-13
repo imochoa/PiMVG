@@ -3,7 +3,7 @@
 
 #######################################################
 # Starting the internet part
-from pi_mvg.core import MVGTracker, mvg_pars_factory
+from core import MVGTracker, mvg_pars_factory
 import RPi.GPIO as GPIO
 import time
 import os

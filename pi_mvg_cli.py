@@ -4,8 +4,6 @@
 import argparse
 import time
 import core
-four_dig = __import__('4dig7seg')
-eight_dig = __import__('8dig7seg')
 
 # from pi_mvg.core import PiMVG, valid_lines
 
@@ -123,6 +121,8 @@ if __name__ == "__main__":
 
     elif display_digits == 4:
         # Use the 4d7s display
+	four_dig = __import__('4dig7seg')
+
         mvg_tracker = four_dig.FourDigSevSeg(
                 mvg_pars=mvg_pars,
                 screen_timeout=screen_timeout,
@@ -131,6 +131,7 @@ if __name__ == "__main__":
         mvg_tracker.track()  # Already includes the timeout
     else:
         # Use the 8d7s display
+	eight_dig = __import__('8dig7seg')
         mvg_tracker = eight_dig.FourDigSevSeg(
                 mvg_pars=mvg_pars,
                 screen_timeout=screen_timeout,

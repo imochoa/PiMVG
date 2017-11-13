@@ -3,7 +3,7 @@
 
 #######################################################
 # Starting the internet part
-from pi_mvg.core import MVGTracker, mvg_pars_factory
+from core import MVGTracker, mvg_pars_factory
 import RPi.GPIO as GPIO
 import time
 import os
@@ -81,7 +81,7 @@ class FourDigSevSeg(MVGTracker):
             on_flag = True
             OFF_time = time.time()  # value will be ignored
 
-        MVGTracker.track()  # Call the parent track method which actually starts the tracking
+	super(FourDigSevSeg, self).track() # Call the parent track method which actually starts the tracking
         try:
             while on_flag or (time.time() < OFF_time):
                 # os.system('sudo shutdown -h now')
