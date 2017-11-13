@@ -20,7 +20,10 @@ def show_message_vp(device, msg, delay=0.1):
     # Implemented with virtual viewport
     width = device.width
     padding = " " * width
-    msg = MutableString(padding + msg + padding)
+    msg = padding + msg + padding
+
+    msg = msg.decode().encode('utf-8')
+
     n = len(msg)
 
     virtual = viewport(device, width=n, height=8)
