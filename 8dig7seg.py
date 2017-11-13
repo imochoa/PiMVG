@@ -22,7 +22,7 @@ def show_message_vp(device, msg, delay=0.1):
     padding = " " * width
     msg = padding + msg + padding
 
-    msg = msg.decode().encode('utf-8')
+    msg = msg.decode('utf-8').encode('utf-8')
 
     n = len(msg)
 
@@ -105,12 +105,12 @@ class EightDigSevSeg(MVGTracker):
                 # Display the results!
                 show_message_vp(device=self.device,
                                 msg=self.display_string,
-                                delay=0.1)
+                                delay=0.2)
 
                 # show_message_alt(seg=self.seg,
                 #                  msg=self.display_string,
                 #                  delay=0.1)
-                time.sleep(5)  # Check new display string every 5 seconds
+                time.sleep(0.5)  # Restart the display in half a second
 
         finally:
             self.stop_tracking()
