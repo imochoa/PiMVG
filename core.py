@@ -70,7 +70,7 @@ MVGPars = namedtuple('MVGpars', 'station line destination max_time min_time')
 
 def mvg_pars_factory(station, line=[], destination=[], max_time=None, min_time=None):
     """
-        :param timetable: List of dictionaries with the times
+    :param timetable: List of dictionaries with the times
     :param line: type of public transport. Array of:["u", "bus", "tram", "s"]
                     'u':    Ubahn
                     's':    Sbahn
@@ -81,6 +81,8 @@ def mvg_pars_factory(station, line=[], destination=[], max_time=None, min_time=N
     :param min_time: Minimum time of departure to take into account
     :return:
     """
+    # TODO Make line accept both type and real lines
+
     # Make sure transports is a list
     line = line if isinstance(line, list) else [line]
     # In Unicode and all lowercase
@@ -182,16 +184,39 @@ class MVGTracker(object):
                 station, line=transports, destination=destination, max_time=max_time, min_time=min_time)
         return MVGTracker(mvg_pars=mvg_pars, update_interval=update_interval)
 
+    @classmethod
+    def factory(cls, station, line=[], destination=[], max_time=None, min_time=None, update_interval=30):
+        mvg_pars = mvg_pars_factory(
+                station, line=line, destination=destination, max_time=max_time, min_time=min_time)
+        return cls(mvg_pars=mvg_pars, update_interval=update_interval)
+
     @property
     def display_string(self):
         for fr in self.mvg_filtered_results:
             r = [row['line'] + ' ' + row['destination'] + ' ' + unicode(row['minutes']) for row in fr]
             print(r)
 
+    def return_next_departure(self):
+        """
+
+        :return: a tuple of the name (line + destination) and the next departure (in minutes)
+        """
+
+        if not self.mvg_filtered_results:
+            name = '----'
+            dep_time = '--'
+        else:
+            name = self.mvg_filtered_results[0].get('line', '--') + ' ' + \
+                   self.mvg_filtered_results[0].get('destination', '--')
+            dep_time = unicode(self.mvg_filtered_results[0].get('minutes', '--'))
+
+        print(name, dep_time)
+
+        return name, dep_time
+
     def track(self):
         self._track_flag = True
         self._periodic_fun()
-
 
     def stop_tracking(self):
         self._track_flag = False
@@ -202,9 +227,9 @@ class MVGTracker(object):
         self.mvg_results = [get_station_dict(station=mp.station) for mp in self.mvg_pars]
 
         self.mvg_filtered_results = [
-            filter_timetable(timetable=t, mvg_pars=p) for t, p in zip(self.mvg_results, self.mvg_pars)]
+            filter_timetable(timetable=t, mvg_pars=p) for t, p in zip(self.mvg_results, self.mvg_pars)].pop()
 
-        print(self.mvg_filtered_results)
+        print(self.mvg_filtered_results, '\n')
         # for i in self.timetable:
         #     print(i['transports'] + ' ' + i['destination'] + ' leaving in: ' + unicode(str(i['minutes'])) + ' mins')
 
@@ -219,3 +244,17 @@ class MVGTracker(object):
             #                             min_time=self.min_time)
 
 
+if __name__ == "__main__":
+
+    mvg_tracker = MVGTracker.factory(station='Olympiazentrum',
+                                     line='u',
+                                     destination=[],
+                                     min_time=None,
+                                     max_time=None)
+
+    mvg_tracker.track()
+    print(mvg_tracker.return_next_line)
+
+    time.sleep(60)
+
+    mvg_tracker.stop_tracking()

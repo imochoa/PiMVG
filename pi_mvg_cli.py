@@ -2,9 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-from pi_mvg.core import PiMVG, valid_lines
+import time
+import core
+
+# from pi_mvg.core import PiMVG, valid_lines
 
 parser = argparse.ArgumentParser(description='MVG inputs')
+parser.add_argument(
+        '--display_digits',
+        help='Number of digits suported by the display. 0 = Print to console, 4 = 4d7s display, anything else (DEFAULT) = combination of 8d7s displays',
+        required=False,
+        default=8)
 parser.add_argument(
         '--station',
         help='Station to check',
@@ -27,6 +35,14 @@ parser.add_argument(
         '--max_t',
         help='Maximum departure time',
         default=None)
+parser.add_argument(
+        '--screen_timeout',
+        help='Minutes to display the results, negative values = no limit',
+        default=1)
+parser.add_argument(
+        '--update_interval',
+        help='Seconds that pass between updates of the departure times',
+        default=30)
 
 if __name__ == "__main__":
 
@@ -37,11 +53,19 @@ if __name__ == "__main__":
 
     # Format the input...
     ####################################################################################################################
-    line = args['line'].split(',')
-    if line:
-        # print('line_before = ' + str(line))
-        line = [unicode(s) for s in line if s in valid_lines]
-        # print('line = ' + str(line))
+    display_digits = int(args['display_digits'])
+
+    ####################################################################################################################
+
+    station = args['station']
+
+    ####################################################################################################################
+
+    transports = args['line'].split(',')
+
+    # print('line_before = ' + str(line))
+    transports = [unicode(s) for s in transports if s in core.valid_transports]
+    # print('line = ' + str(line))
 
     ####################################################################################################################
     dest = args['dest'].split(',')
@@ -53,7 +77,7 @@ if __name__ == "__main__":
 
         if dest == ['']:
             dest = []
-        # print('dest = ' + str(dest))
+            # print('dest = ' + str(dest))
 
     ####################################################################################################################
     min_time = args['min_t']
@@ -66,11 +90,38 @@ if __name__ == "__main__":
         max_time = float(max_time)
     ####################################################################################################################
 
-    mvg_tracker = PiMVG(station=args['station'],
-                        line=line,
-                        destination=dest,
-                        min_time=min_time,
-                        max_time=max_time)
+    screen_timeout = int(args['screen_timeout'])
 
-    mvg_tracker._periodic_fun()
+    ####################################################################################################################
+    update_interval = int(args['update_interval'])
 
+    ####################################################################################################################
+
+    mvg_pars = core.mvg_pars_factory(station=station,
+                                     line=transports,
+                                     destination=dest,
+                                     max_time=max_time,
+                                     min_time=min_time)
+
+    # Which output to use?
+    if display_digits == 0:
+        # Use the Console
+        mvg_tracker = core.MVGTracker(
+                mvg_pars=mvg_pars,
+                update_interval=update_interval)
+
+        mvg_tracker.track()
+
+        if screen_timeout <= 0:  # Negative time = infinite loop
+            while True:
+                time.sleep(10)  # So that the coputer doesn't go crazy
+
+        time.sleep(screen_timeout)  # Positive time = wait for that time
+        mvg_tracker.stop_tracking()
+
+    elif display_digits == 4:
+        # Use the 4d7s display
+        pass
+    else:
+        # Use the 8d7s display
+        pass
