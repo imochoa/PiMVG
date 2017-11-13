@@ -10,16 +10,17 @@ from luma.core.interface.serial import spi, noop
 from luma.core.virtual import viewport, sevensegment
 
 from core import MVGTracker, mvg_pars_factory
-import RPi.GPIO as GPIO
 import time
 import os
+
+from UserString import MutableString
 
 
 def show_message_vp(device, msg, delay=0.1):
     # Implemented with virtual viewport
     width = device.width
     padding = " " * width
-    msg = unicode(padding + msg + padding).encode('utf-8')
+    msg = MutableString(padding + msg + padding)
     n = len(msg)
 
     virtual = viewport(device, width=n, height=8)
@@ -99,13 +100,13 @@ class EightDigSevSeg(MVGTracker):
         try:
             while on_flag or (time.time() < OFF_time):
                 # Display the results!
-                # show_message_vp(device=self.device,
-                #                 msg=self.display_string,
-                #                 delay=0.1)
+                show_message_vp(device=self.device,
+                                msg=self.display_string,
+                                delay=0.1)
 
-                show_message_alt(seg=self.seg,
-                                 msg=self.display_string,
-                                 delay=0.1)
+                # show_message_alt(seg=self.seg,
+                #                  msg=self.display_string,
+                #                  delay=0.1)
                 time.sleep(5)  # Check new display string every 5 seconds
 
         finally:
