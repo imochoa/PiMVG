@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     elif display_digits == 4:
         # Use the 4d7s display
-	four_dig = __import__('4dig7seg')
+        four_dig = __import__('4dig7seg')
 
         mvg_tracker = four_dig.FourDigSevSeg(
                 mvg_pars=mvg_pars,
@@ -131,10 +131,16 @@ if __name__ == "__main__":
         mvg_tracker.track()  # Already includes the timeout
     else:
         # Use the 8d7s display
-	eight_dig = __import__('8dig7seg')
-        mvg_tracker = eight_dig.FourDigSevSeg(
+        eight_dig = __import__('8dig7seg')
+
+        cascaded = (display_digits + (8 - 1)) // 8  # 8 digits per cascaded 8d7s display
+
+        mvg_tracker = eight_dig.EightDigSevSeg(
                 mvg_pars=mvg_pars,
                 screen_timeout=screen_timeout,
-                update_interval=update_interval)
+                update_interval=update_interval,
+                port=0,
+                device=0,
+                cascaded=cascaded)
 
         mvg_tracker.track()  # Already includes the timeout

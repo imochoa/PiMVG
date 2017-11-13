@@ -81,7 +81,7 @@ class FourDigSevSeg(MVGTracker):
             on_flag = True
             OFF_time = time.time()  # value will be ignored
 
-	super(FourDigSevSeg, self).track() # Call the parent track method which actually starts the tracking
+        super(FourDigSevSeg, self).track()  # Call the parent track method which actually starts the tracking
         try:
             while on_flag or (time.time() < OFF_time):
                 # os.system('sudo shutdown -h now')
