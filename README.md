@@ -24,7 +24,9 @@ sudo apt-get install ruby`ruby -e 'puts RUBY_VERSION[/\d+\.\d+/]'`-dev
 
 You can check if it was correctly installed by runningn `mvg hauptbahnhof` in the terminal. If you got a timetable, you're all set.
 
-## (For the 8d7s display) Install rm-hull/luma.led_matrix
+## (For the 8d7s display) enable SPI and Install rm-hull/luma.led_matrix
+First, run: `sudo raspi-config` and make sure that SPI is enabled on your Raspberry Pi
+
 Another package is required if you want to use the 8d7s displays with the MAX7219 chip; [rm-hull/luma.led_matrix](https://github.com/rm-hull/luma.led_matrix)
 
 Installing it is pretty straightforward, first you need to clone it into your Raspberry Pi
