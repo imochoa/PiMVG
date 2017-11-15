@@ -46,13 +46,7 @@ import luma
 If you didn't get any errors, you're good to go.
 
 # Hardware Setup
-Follow the guide on Instructables (coming soon...)
-
-## 4d7s display wiring
-(coming soon...)
-## 8d7s display wiring
-(coming soon...)
-By default, it uses the first SPI channel
+Follow the guide on the (Instructables)[https://www.instructables.com/id/PiMVG/] page
 
 
 # How to use it
